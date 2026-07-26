@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: rag-chat-backend
+    env: docker
+    dockerfilePath: ./Dockerfile.api
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: BASIC_AUTH_USERNAME
+        sync: false
+      - key: BASIC_AUTH_PASSWORD
+        sync: false
+      - key: FRONTEND_ORIGIN
+        value: https://rag-chat-frontend.onrender.com
+
+  - type: web
+    name: rag-chat-frontend
+    env: docker
+    dockerfilePath: ./Dockerfile.frontend
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: BACKEND_URL
+        value: https://rag-chat-backend.onrender.com
+      - key: BASIC_AUTH_USERNAME
+        sync: false
+      - key: BASIC_AUTH_PASSWORD
+        sync: false
