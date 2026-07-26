@@ -1,8 +1,9 @@
 import logging
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 
+from api.auth import require_auth
 from api.schemas import ChatRequest, ChatResponse, SourceCitation, UploadResponse
 from config import PDF_DIR, TOP_K
 from ingestion.build_index import build_index
@@ -26,7 +27,7 @@ def health() -> dict:
     return {"status": "ok"}
 
 
-@app.post("/chat", response_model=ChatResponse)
+@app.post("/chat", response_model=ChatResponse, dependencies=[Depends(require_auth)])
 def chat(request: ChatRequest) -> ChatResponse:
     query = request.query.strip()
     if not query:
@@ -65,7 +66,7 @@ def chat(request: ChatRequest) -> ChatResponse:
     return ChatResponse(answer=answer, sources=sources)
 
 
-@app.post("/upload", response_model=UploadResponse)
+@app.post("/upload", response_model=UploadResponse, dependencies=[Depends(require_auth)])
 async def upload(file: UploadFile = File(...)) -> UploadResponse:
     filename = Path(file.filename or "").name
     if not filename.lower().endswith(".pdf"):

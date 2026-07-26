@@ -1,11 +1,34 @@
+import secrets
+
 import requests
 import streamlit as st
 
-from config import BACKEND_URL
+from config import BACKEND_URL, BASIC_AUTH_PASSWORD, BASIC_AUTH_USERNAME
 
 API_BASE_URL = BACKEND_URL
+AUTH = (BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD)
 
 st.set_page_config(page_title="Company Document Assistant", page_icon="💬")
+
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.title("Company Document Assistant")
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Log in")
+    if submitted:
+        valid_user = secrets.compare_digest(username, BASIC_AUTH_USERNAME)
+        valid_pass = secrets.compare_digest(password, BASIC_AUTH_PASSWORD)
+        if valid_user and valid_pass:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Invalid username or password.")
+    st.stop()
+
 st.title("Company Document Assistant")
 
 if "messages" not in st.session_state:
@@ -18,7 +41,7 @@ with st.sidebar:
         with st.spinner("Indexing..."):
             try:
                 files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")}
-                resp = requests.post(f"{API_BASE_URL}/upload", files=files, timeout=120)
+                resp = requests.post(f"{API_BASE_URL}/upload", files=files, auth=AUTH, timeout=120)
                 resp.raise_for_status()
                 data = resp.json()
                 st.success(
@@ -63,7 +86,7 @@ if query:
         answer = ""
         sources: list[dict] = []
         try:
-            resp = requests.post(f"{API_BASE_URL}/chat", json={"query": query}, timeout=60)
+            resp = requests.post(f"{API_BASE_URL}/chat", json={"query": query}, auth=AUTH, timeout=60)
             resp.raise_for_status()
             data = resp.json()
             answer = data["answer"]
