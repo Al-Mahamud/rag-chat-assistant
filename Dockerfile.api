@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements-api.txt .
+# Install the CPU-only PyTorch wheel first so sentence-transformers' torch
+# dependency is already satisfied and pip doesn't pull the ~2GB CUDA/GPU build.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir -r requirements-api.txt
+
+# Bake the embedding model into the image so containers never hit the
+# network for it at runtime (needed on ephemeral/free-tier restarts).
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+ENV HF_HUB_OFFLINE=1
+ENV TRANSFORMERS_OFFLINE=1
+
+COPY . .
+
+CMD ["sh", "-c", "python -m ingestion.build_index; uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
