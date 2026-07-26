@@ -1,11 +1,15 @@
 import logging
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from api.auth import require_auth
 from api.schemas import ChatRequest, ChatResponse, SourceCitation, UploadResponse
-from config import PDF_DIR, TOP_K
+from config import FRONTEND_ORIGIN, PDF_DIR, TOP_K
 from ingestion.build_index import build_index
 from rag.llm_client import generate_answer
 from rag.prompt import build_messages
@@ -15,6 +19,18 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="RAG Chat Assistant API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[FRONTEND_ORIGIN],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 NO_RELEVANT_CONTENT_ANSWER = (
     "I don't know - I couldn't find anything relevant to that question in the "
@@ -28,8 +44,9 @@ def health() -> dict:
 
 
 @app.post("/chat", response_model=ChatResponse, dependencies=[Depends(require_auth)])
-def chat(request: ChatRequest) -> ChatResponse:
-    query = request.query.strip()
+@limiter.limit("10/minute")
+def chat(request: Request, chat_request: ChatRequest) -> ChatResponse:
+    query = chat_request.query.strip()
     if not query:
         raise HTTPException(status_code=400, detail="Query must not be empty.")
 
