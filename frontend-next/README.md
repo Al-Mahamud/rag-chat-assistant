@@ -24,10 +24,16 @@ The FastAPI backend (`../api/main.py`) has CORS restricted to `FRONTEND_ORIGIN`,
 
 ```bash
 npm install
+cp .env.local.example .env.local   # then fill in the values
 npm run dev
 ```
 
 Opens at [http://localhost:3000](http://localhost:3000).
+
+### Two ways to point `BACKEND_URL`
+
+- **Against a local backend** (for testing changes to `../api/` together with this app): run the FastAPI backend locally (`uvicorn api.main:app --reload` from the repo root, with its own `.env` set up per the root README), and set `BACKEND_URL=http://localhost:8000` in `.env.local`.
+- **Against the deployed backend** (for testing this app against real production data without running Python locally): set `BACKEND_URL=https://rag-chat-backend-q3ja.onrender.com` in `.env.local`. `BASIC_AUTH_USERNAME`/`BASIC_AUTH_PASSWORD` must match whatever is set on that Render service.
 
 ## Note on Next.js version
 
