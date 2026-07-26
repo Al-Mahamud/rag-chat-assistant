@@ -16,6 +16,10 @@ Copy `.env.local.example` to `.env.local` and fill in:
 
 None of these are prefixed `NEXT_PUBLIC_` — they must never be exposed to the browser bundle.
 
+## CORS on the backend
+
+The FastAPI backend (`../api/main.py`) has CORS restricted to `FRONTEND_ORIGIN`, originally set up for the Streamlit frontend which also called it server-side. With this Next.js app, backend calls happen server-to-server from `/api/chat` and `/api/upload` (Vercel's servers, not the browser) — so the browser never makes a cross-origin request to the backend directly, and CORS is no longer the thing protecting those endpoints (Basic Auth still is). Left as-is: zero cost to keep, and it doesn't block anything in this architecture.
+
 ## Local development
 
 ```bash
