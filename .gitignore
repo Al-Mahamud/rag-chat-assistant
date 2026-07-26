@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+vectorstore/index.faiss
+vectorstore/metadata.jsonl
+data/pdfs/*
+!data/pdfs/.gitkeep
