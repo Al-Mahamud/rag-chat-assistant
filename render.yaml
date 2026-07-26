@@ -14,7 +14,7 @@ services:
       - key: BASIC_AUTH_PASSWORD
         sync: false
       - key: FRONTEND_ORIGIN
-        value: https://rag-chat-frontend.onrender.com
+        value: https://rag-chat-frontend-iij4.onrender.com
 
   - type: web
     name: rag-chat-frontend
@@ -24,7 +24,7 @@ services:
     plan: free
     envVars:
       - key: BACKEND_URL
-        value: https://rag-chat-backend.onrender.com
+        value: https://rag-chat-backend-q3ja.onrender.com
       - key: BASIC_AUTH_USERNAME
         sync: false
       - key: BASIC_AUTH_PASSWORD
