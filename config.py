@@ -31,3 +31,9 @@ LLM_TEMPERATURE = 0.2
 # API
 API_HOST = "127.0.0.1"
 API_PORT = 8000
+
+# Deployment (multi-host / production)
+BACKEND_URL = os.getenv("BACKEND_URL", f"http://{API_HOST}:{API_PORT}")
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "*")
+BASIC_AUTH_USERNAME = os.getenv("BASIC_AUTH_USERNAME", "")
+BASIC_AUTH_PASSWORD = os.getenv("BASIC_AUTH_PASSWORD", "")

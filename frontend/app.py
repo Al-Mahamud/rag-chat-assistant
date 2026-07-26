@@ -1,9 +1,9 @@
 import requests
 import streamlit as st
 
-from config import API_HOST, API_PORT
+from config import BACKEND_URL
 
-API_BASE_URL = f"http://{API_HOST}:{API_PORT}"
+API_BASE_URL = BACKEND_URL
 
 st.set_page_config(page_title="Company Document Assistant", page_icon="💬")
 st.title("Company Document Assistant")
