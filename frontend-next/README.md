@@ -35,6 +35,15 @@ Opens at [http://localhost:3000](http://localhost:3000).
 - **Against a local backend** (for testing changes to `../api/` together with this app): run the FastAPI backend locally (`uvicorn api.main:app --reload` from the repo root, with its own `.env` set up per the root README), and set `BACKEND_URL=http://localhost:8000` in `.env.local`.
 - **Against the deployed backend** (for testing this app against real production data without running Python locally): set `BACKEND_URL=https://rag-chat-backend-q3ja.onrender.com` in `.env.local`. `BASIC_AUTH_USERNAME`/`BASIC_AUTH_PASSWORD` must match whatever is set on that Render service.
 
+## Deployment (Vercel)
+
+Deployed at **https://rag-chat-assistant-eight.vercel.app** (note: Vercel assigns a new random URL suffix on some deployments unless a stable custom domain is configured — check the Vercel dashboard's "Production" deployment for the current URL if this one stops working).
+
+Setup:
+1. Import the GitHub repo into a new Vercel project.
+2. **Set Root Directory to `frontend-next`** in Settings → General — critical, since the repo root is a Python project and Vercel will otherwise try to build that instead.
+3. Set `BACKEND_URL`, `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD`, `SESSION_SECRET` under Settings → Environment Variables (scoped to Production + Preview). Env var changes require a Redeploy to take effect on an existing deployment.
+
 ## Note on Next.js version
 
 This project was scaffolded on Next.js 16, which renamed `middleware.ts` to `proxy.ts` (Proxy now defaults to the Node.js runtime) and made other breaking changes versus older Next.js docs/training data. Check `node_modules/next/dist/docs/` for the version actually installed before assuming an API works a certain way.
