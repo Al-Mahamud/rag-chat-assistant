@@ -25,7 +25,7 @@ MIN_SIMILARITY_SCORE = 0.25  # chunks scoring below this are treated as irreleva
 
 # LLM (Groq)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_MODEL_NAME = "llama-3.3-70b-versatile"
+GROQ_MODEL_NAME = "openai/gpt-oss-120b"   # replaces deprecated llama-3.3-70b-versatile
 LLM_TEMPERATURE = 0.2
 
 # API
